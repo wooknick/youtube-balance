@@ -1,5 +1,12 @@
 body {
-  width: 300px;
+  width: 600px;
   height: 800px;
   background-color: beige;
+  overflow: scroll;
+}
+
+.line {
+  width: 100%;
+  height: 40px;
+  font-size: 36px;
 }
