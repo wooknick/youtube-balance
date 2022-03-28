@@ -17,6 +17,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       files: ["injection/index.js"],
     });
   }
+  return true;
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -34,4 +35,5 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     sendResponse({ data: retData });
   }
+  return true;
 });

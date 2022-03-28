@@ -2,6 +2,7 @@ const app = document.querySelector("div#app");
 
 chrome.runtime.sendMessage({ payload: "getData" }, (response) => {
   const { data } = response;
+  console.log(data);
   const keys = Object.keys(data);
   keys.forEach((key) => {
     app.appendChild(createElement(key, 0));

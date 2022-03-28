@@ -1,14 +1,22 @@
 import qs from "query-string";
 (async function () {
+  const data = new Map();
   await relatedVideoLoaded();
   getRelatedVideos();
 
   let scrollT = undefined;
+  let mousemoveT = undefined;
   window.addEventListener("scroll", () => {
     if (scrollT) {
       clearTimeout(scrollT);
     }
-    scrollT = setTimeout(getRelatedVideos, 700);
+    scrollT = setTimeout(getRelatedVideos, 1000);
+  });
+  window.addEventListener("mousemove", () => {
+    if (mousemoveT) {
+      clearTimeout(mousemoveT);
+    }
+    mousemoveT = setTimeout(getRelatedVideos, 10000);
   });
 
   function getCurrent() {
@@ -22,7 +30,14 @@ import qs from "query-string";
   }
 
   function getRelatedVideos() {
-    const relatedVideos = new Set();
+    const current = getCurrent();
+    if (!data.has(current)) {
+      data.set(current, new Set());
+    }
+
+    const relatedVideos = data.get(current);
+
+    const beforeSize = relatedVideos.size;
     const relativeList = document.querySelectorAll(
       "div#contents.style-scope.ytd-item-section-renderer > ytd-compact-video-renderer"
     );
@@ -34,16 +49,17 @@ import qs from "query-string";
         relatedVideos.add(id);
       }
     }
-
-    console.log(JSON.stringify([...relatedVideos]));
-    chrome.runtime.sendMessage({
-      payload: "youtubeLink",
-      data: {
-        current: getCurrent(),
-        relatedVideos: [...relatedVideos],
-      },
-    });
-    return relatedVideos;
+    const afterSize = relatedVideos.size;
+    if (beforeSize !== afterSize) {
+      console.log(`${afterSize - beforeSize} videos updated`);
+      chrome.runtime.sendMessage({
+        payload: "youtubeLink",
+        data: {
+          current: current,
+          relatedVideos: [...relatedVideos],
+        },
+      });
+    }
   }
 
   function relatedVideoLoaded() {
