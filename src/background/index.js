@@ -28,6 +28,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (data.has(current)) {
       relatedVideos.forEach((v) => data.get(current).add(v));
     }
+    sendResponse();
   } else if (request.payload === "getData") {
     const retData = Object.fromEntries(data);
     for (const key of data.keys()) {
