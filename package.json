@@ -1,0 +1,21 @@
+{
+  "name": "my-youtube-history",
+  "version": "1.0.0",
+  "license": "MIT",
+  "source": [
+    "src/background/index.js",
+    "src/injection/index.js",
+    "src/popup/index.html"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist/",
+    "prebuild": "yarn clean",
+    "build": "yarn parcel build",
+    "postbuild": "cp src/manifest.json dist/manifest.json",
+    "start": "yarn build && yarn parcel"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.4.0",
+    "parcel": "^2.4.0"
+  }
+}

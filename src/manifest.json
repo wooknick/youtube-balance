@@ -1,0 +1,19 @@
+{
+  "name": "Y Link",
+  "description": "Visualization of Personal Youtube Activities",
+  "version": "1.0.1",
+  "manifest_version": 3,
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["https://*.youtube.com/watch*"],
+      "js": ["injection/index.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/index.html"
+  },
+  "background": {
+    "service_worker": "background/index.js"
+  }
+}
