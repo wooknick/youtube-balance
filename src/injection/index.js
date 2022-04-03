@@ -29,7 +29,7 @@ import qs from "query-string";
     return ret;
   }
 
-  function getRelatedVideos() {
+  async function getRelatedVideos() {
     const current = getCurrent();
     if (!data.has(current)) {
       data.set(current, new Set());
@@ -52,13 +52,11 @@ import qs from "query-string";
     const afterSize = relatedVideos.size;
     if (beforeSize !== afterSize) {
       console.log(`${afterSize - beforeSize} videos updated`);
-      chrome.runtime.sendMessage({
-        payload: "youtubeLink",
-        data: {
-          current: current,
-          relatedVideos: [...relatedVideos],
-        },
-      });
+      const stoargeData = await getAllStorageData();
+      console.log(stoargeData);
+      stoargeData["yl-data"] = stoargeData["yl-data"] || {};
+      stoargeData["yl-data"][current] = [...relatedVideos];
+      chrome.storage.local.set(stoargeData);
     }
   }
 
@@ -76,6 +74,17 @@ import qs from "query-string";
           setTimeout(observe, 1000 / 30);
         }
       }
+    });
+  }
+
+  function getAllStorageData() {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(null, (items) => {
+        if (chrome.runtime.lastError) {
+          return reject(chrome.runtime.lastError);
+        }
+        resolve(items);
+      });
     });
   }
 })();

@@ -10,3 +10,21 @@ body {
   height: 40px;
   font-size: 36px;
 }
+
+#clear {
+  width: 50px;
+  height: 50px;
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  transition: transform 0.1s ease-in;
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+  }
+}
