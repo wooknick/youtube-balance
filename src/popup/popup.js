@@ -7,11 +7,16 @@ document.body.appendChild(clearButton);
 clearButton.onclick = () => {
   chrome.storage.local.clear(() => {
     console.log("storage clear");
+    clearElement();
     drawElement();
   });
 };
 
 drawElement();
+
+function clearElement() {
+  app.innerHTML = "";
+}
 
 function drawElement() {
   chrome.storage.local.get("yl-data", (items) => {
@@ -27,6 +32,17 @@ function drawElement() {
 function createElement(id, depth = 0) {
   const div = document.createElement("div");
   div.classList = "line";
-  div.innerText = "-".repeat(depth * 4) + id;
+  const thumbnail = thumbnailBox(id, 300);
+  div.appendChild(thumbnail);
   return div;
+}
+
+function thumbnailBox(id, width = 200) {
+  const imgWrapper = document.createElement("div");
+  imgWrapper.classList = "thumbnail";
+  imgWrapper.style = `--width: ${width}px;`;
+  const img = document.createElement("img");
+  img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; // https://i.ytimg.com/vi/bDbS6CItIsA/maxresdefault.jpg
+  imgWrapper.appendChild(img);
+  return imgWrapper;
 }
