@@ -1,8 +1,33 @@
 import qs from "query-string";
+import { categoryList } from "../categoryId";
 (async function () {
-  const data = new Map();
-  await relatedVideoLoaded();
-  getRelatedVideos();
+  /**
+   * 1. injection 내에서 사용하는 데이터 형태 :
+   * {
+   *   category : Set
+   * }
+   *
+   * 2. storage에 저장되는 데이터 형태 :
+   * {
+   *   category : Array
+   * }
+   */
+  const storageData = await getAllStorageData();
+  if (Object.keys(storageData).includes("yl-data")) {
+    categoryList.forEach((category) => {
+      storageData["yl-data"][category] = new Set(
+        storageData["yl-data"][category]
+      );
+    });
+  } else {
+    const defaultData = {};
+    categoryList.forEach((category) => {
+      defaultData[category] = new Set();
+    });
+    storageData["yl-data"] = defaultData;
+  }
+
+  updateData();
 
   let scrollT = undefined;
   let mousemoveT = undefined;
@@ -10,71 +35,47 @@ import qs from "query-string";
     if (scrollT) {
       clearTimeout(scrollT);
     }
-    scrollT = setTimeout(getRelatedVideos, 1000);
+    scrollT = setTimeout(updateData, 1000);
   });
   window.addEventListener("mousemove", () => {
     if (mousemoveT) {
       clearTimeout(mousemoveT);
     }
-    mousemoveT = setTimeout(getRelatedVideos, 10000);
+    mousemoveT = setTimeout(updateData, 10000);
   });
 
   function getCurrent() {
-    let ret = undefined;
+    let current = undefined;
     const url = window.location.href;
     const parsedUrl = qs.parseUrl(url);
     if (Object.keys(parsedUrl.query).includes("v")) {
-      ret = parsedUrl.query.v;
+      current = parsedUrl.query.v;
     }
-    return ret;
+    return current;
   }
 
-  async function getRelatedVideos() {
+  function getCategory() {
+    let category = undefined;
+    const scripts = document.body.querySelectorAll("script");
+    for (const script of scripts) {
+      category = script.innerText.match(/(?<="category":")[^\"]*/g);
+      if (category) {
+        break;
+      }
+    }
+    return category;
+  }
+
+  function updateData() {
     const current = getCurrent();
-    if (!data.has(current)) {
-      data.set(current, new Set());
-    }
-
-    const relatedVideos = data.get(current);
-
-    const beforeSize = relatedVideos.size;
-    const relativeList = document.querySelectorAll(
-      "div#contents.style-scope.ytd-item-section-renderer > ytd-compact-video-renderer"
-    );
-    for (const item of relativeList) {
-      const url = item.querySelector("a").href;
-      const parsedUrl = qs.parseUrl(url);
-      if (Object.keys(parsedUrl.query).includes("v")) {
-        const id = parsedUrl.query.v;
-        relatedVideos.add(id);
-      }
-    }
-    const afterSize = relatedVideos.size;
-    if (beforeSize !== afterSize) {
-      console.log(`${afterSize - beforeSize} videos updated`);
-      const stoargeData = await getAllStorageData();
-      console.log(stoargeData);
-      stoargeData["yl-data"] = stoargeData["yl-data"] || {};
-      stoargeData["yl-data"][current] = [...relatedVideos];
-      chrome.storage.local.set(stoargeData);
-    }
-  }
-
-  function relatedVideoLoaded() {
-    return new Promise((resolve) => {
-      observe();
-      function observe() {
-        const relatedList = document.querySelectorAll(
-          "div#contents.style-scope.ytd-item-section-renderer > ytd-compact-video-renderer"
-        );
-        if (relatedList.length > 5) {
-          console.log(">>> Relative Video Loaded");
-          resolve();
-        } else {
-          setTimeout(observe, 1000 / 30);
-        }
-      }
+    const category = getCategory();
+    storageData["yl-data"][category].add(current);
+    const newData = { "yl-data": {} };
+    categoryList.forEach((category) => {
+      newData["yl-data"][category] = [...storageData["yl-data"][category]];
     });
+    chrome.storage.local.set(newData);
+    console.log("updated");
   }
 
   function getAllStorageData() {

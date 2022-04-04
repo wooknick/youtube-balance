@@ -21,28 +21,30 @@ function clearElement() {
 function drawElement() {
   chrome.storage.local.get("yl-data", (items) => {
     const data = items["yl-data"];
-    console.log(data);
+    console.log("data", data);
+
     Object.keys(data).forEach((key) => {
-      app.appendChild(createElement(key));
-      data[key].forEach((d) => app.appendChild(createElement(d, 1)));
+      app.appendChild(createElement(key, data[key].length));
     });
   });
 }
 
-function createElement(id, depth = 0) {
+function createElement(category, value) {
   const div = document.createElement("div");
   div.classList = "line";
-  const thumbnail = thumbnailBox(id, 300);
-  div.appendChild(thumbnail);
+
+  div.innerText = `${category} : ${value}`;
+
   return div;
 }
 
-function thumbnailBox(id, width = 200) {
+function thumbnailBox(id, width = 200, lazy = true) {
   const imgWrapper = document.createElement("div");
   imgWrapper.classList = "thumbnail";
   imgWrapper.style = `--width: ${width}px;`;
   const img = document.createElement("img");
   img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; // https://i.ytimg.com/vi/bDbS6CItIsA/maxresdefault.jpg
+  img.loading = lazy ? "lazy" : "eager";
   imgWrapper.appendChild(img);
   return imgWrapper;
 }
