@@ -1,6 +1,7 @@
 import qs from "query-string";
 import { categoryList } from "../categoryId";
 (async function () {
+  console.log("added");
   /**
    * 1. injection 내에서 사용하는 데이터 형태 :
    * {
@@ -60,6 +61,9 @@ import { categoryList } from "../categoryId";
     for (const script of scripts) {
       category = script.innerText.match(/(?<="category":")[^\"]*/g);
       if (category) {
+        category = category[0].replace("\\u0026", "&");
+        category = category.replace("\\u002F", "/");
+        category = category.replace("\\u002f", "/");
         break;
       }
     }
@@ -69,6 +73,7 @@ import { categoryList } from "../categoryId";
   function updateData() {
     const current = getCurrent();
     const category = getCategory();
+    console.log(current, category, storageData["yl-data"]);
     storageData["yl-data"][category].add(current);
     const newData = { "yl-data": {} };
     categoryList.forEach((category) => {
