@@ -1,7 +1,8 @@
 import qs from "query-string";
+import axios from "axios";
+import * as cheerio from "cheerio";
 import { categoryList } from "../categoryId";
 (async function () {
-  console.log("added");
   /**
    * 1. injection 내에서 사용하는 데이터 형태 :
    * {
@@ -28,22 +29,7 @@ import { categoryList } from "../categoryId";
     storageData["yl-data"] = defaultData;
   }
 
-  updateData();
-
-  let scrollT = undefined;
-  let mousemoveT = undefined;
-  window.addEventListener("scroll", () => {
-    if (scrollT) {
-      clearTimeout(scrollT);
-    }
-    scrollT = setTimeout(updateData, 1000);
-  });
-  window.addEventListener("mousemove", () => {
-    if (mousemoveT) {
-      clearTimeout(mousemoveT);
-    }
-    mousemoveT = setTimeout(updateData, 10000);
-  });
+  await updateData();
 
   function getCurrent() {
     let current = undefined;
@@ -55,32 +41,41 @@ import { categoryList } from "../categoryId";
     return current;
   }
 
-  function getCategory() {
+  async function getCategory(id) {
     let category = undefined;
-    const scripts = document.body.querySelectorAll("script");
-    for (const script of scripts) {
-      category = script.innerText.match(/(?<="category":")[^\"]*/g);
-      if (category) {
-        category = category[0].replace("\\u0026", "&");
-        category = category.replace("\\u002F", "/");
-        category = category.replace("\\u002f", "/");
-        break;
+
+    const url = `https://www.youtube.com/watch?v=${id}`;
+    const html = await axios.get(url);
+    const $ = cheerio.load(html.data);
+    $("script").each((idx, item) => {
+      if (!category && item.children.length > 0) {
+        const targetScript = item.children[0].data;
+        const categoryMatchResult = targetScript.match(
+          /(?<="category":")[^\"]*/g
+        );
+        if (categoryMatchResult) {
+          category = categoryMatchResult[0].replace("\\u0026", "&");
+          category = category.replace("\\u002F", "/");
+          category = category.replace("\\u002f", "/");
+        }
       }
-    }
+    });
+
     return category;
   }
 
-  function updateData() {
+  async function updateData() {
     const current = getCurrent();
-    const category = getCategory();
-    console.log(current, category, storageData["yl-data"]);
-    storageData["yl-data"][category].add(current);
-    const newData = { "yl-data": {} };
-    categoryList.forEach((category) => {
-      newData["yl-data"][category] = [...storageData["yl-data"][category]];
-    });
-    chrome.storage.local.set(newData);
-    console.log("updated");
+    if (current) {
+      const category = await getCategory(current);
+      storageData["yl-data"][category].add(current);
+      const newData = { "yl-data": {} };
+      categoryList.forEach((category) => {
+        newData["yl-data"][category] = [...storageData["yl-data"][category]];
+      });
+      chrome.storage.local.set(newData);
+      console.log("updated");
+    }
   }
 
   function getAllStorageData() {

@@ -1,4 +1,4 @@
-chrome.tabs.onUpdated.addListener(async function (tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (changeInfo.status === "complete" && tab.url) {
     const { url } = tab;
     chrome.scripting.executeScript({
