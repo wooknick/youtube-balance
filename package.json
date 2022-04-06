@@ -11,7 +11,7 @@
     "clean": "rm -rf dist/",
     "prebuild": "yarn clean",
     "build": "yarn parcel build",
-    "postbuild": "cp src/manifest.json dist/manifest.json",
+    "postbuild": "cp src/manifest.json dist/manifest.json && mkdir dist/icons && cp src/icons/**.* dist/icons/",
     "start": "yarn build && yarn parcel"
   },
   "devDependencies": {
