@@ -1,50 +1,56 @@
-const app = document.querySelector("div#app");
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./Components/app";
 
-const clearButton = document.createElement("div");
-clearButton.id = "clear";
-clearButton.innerText = "Clear";
-document.body.appendChild(clearButton);
-clearButton.onclick = () => {
-  chrome.storage.local.clear(() => {
-    console.log("storage clear");
-    clearElement();
-    drawElement();
-  });
-};
+const container = document.querySelector("div#app");
+const root = createRoot(container);
+root.render(<App />);
 
-drawElement();
+// const clearButton = document.createElement("div");
+// clearButton.id = "clear";
+// clearButton.innerText = "Clear";
+// document.body.appendChild(clearButton);
+// clearButton.onclick = () => {
+//   chrome.storage.local.clear(() => {
+//     console.log("storage clear");
+//     clearElement();
+//     drawElement();
+//   });
+// };
 
-function clearElement() {
-  app.innerHTML = "";
-}
+// drawElement();
 
-function drawElement() {
-  chrome.storage.local.get("yl-data", (items) => {
-    const data = items["yl-data"];
-    console.log("data", data);
+// function clearElement() {
+//   app.innerHTML = "";
+// }
 
-    Object.keys(data).forEach((key) => {
-      app.appendChild(createElement(key, data[key].length));
-    });
-  });
-}
+// function drawElement() {
+//   chrome.storage.local.get("yl-data", (items) => {
+//     const data = items["yl-data"];
+//     console.log("data", data);
 
-function createElement(category, value) {
-  const div = document.createElement("div");
-  div.classList = "line";
+//     Object.keys(data).forEach((key) => {
+//       app.appendChild(createElement(key, data[key].length));
+//     });
+//   });
+// }
 
-  div.innerText = `${category} : ${value}`;
+// function createElement(category, value) {
+//   const div = document.createElement("div");
+//   div.classList = "line";
 
-  return div;
-}
+//   div.innerText = `${category} : ${value}`;
 
-function thumbnailBox(id, width = 200, lazy = true) {
-  const imgWrapper = document.createElement("div");
-  imgWrapper.classList = "thumbnail";
-  imgWrapper.style = `--width: ${width}px;`;
-  const img = document.createElement("img");
-  img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; // https://i.ytimg.com/vi/bDbS6CItIsA/maxresdefault.jpg
-  img.loading = lazy ? "lazy" : "eager";
-  imgWrapper.appendChild(img);
-  return imgWrapper;
-}
+//   return div;
+// }
+
+// function thumbnailBox(id, width = 200, lazy = true) {
+//   const imgWrapper = document.createElement("div");
+//   imgWrapper.classList = "thumbnail";
+//   imgWrapper.style = `--width: ${width}px;`;
+//   const img = document.createElement("img");
+//   img.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`; // https://i.ytimg.com/vi/bDbS6CItIsA/maxresdefault.jpg
+//   img.loading = lazy ? "lazy" : "eager";
+//   imgWrapper.appendChild(img);
+//   return imgWrapper;
+// }

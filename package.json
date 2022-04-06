@@ -23,6 +23,10 @@
   "dependencies": {
     "axios": "^0.26.1",
     "cheerio": "^1.0.0-rc.10",
-    "query-string": "^7.1.1"
+    "query-string": "^7.1.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "styled-components": "^5.3.5",
+    "styled-reset": "^4.3.4"
   }
 }
